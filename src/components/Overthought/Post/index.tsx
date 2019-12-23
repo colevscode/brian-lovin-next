@@ -6,7 +6,6 @@ import { getFeaturedPosts } from '~/data/ghost'
 import { BlogPost } from '~/types';
 import { ContentContainer, SectionHeading } from '~/components/Page';
 import { H1, H3, A, Rarr, LargeSubheading, Subheading } from '~/components/Typography'
-import OverthoughtSubscribeBox from '~/components/Overthought/Subscribe'
 import GlobalStyles from '~/components/GlobalStyles';
 import SyntaxHighlighter from '~/components/SyntaxHighlighter';
 import { getDateObject } from '~/lib/getDateObject'
@@ -45,7 +44,6 @@ export default function Post({ post }) {
 
         <SectionHeading style={{ marginTop: '32px' }}>
           <Feedback post={post} />
-          <OverthoughtSubscribeBox />
         </SectionHeading>
 
         <SectionHeading style={{ marginTop: '32px' }}>

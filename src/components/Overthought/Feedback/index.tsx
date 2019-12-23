@@ -1,7 +1,7 @@
 import * as React from 'react'
 import { BlogPost } from '~/types';
 import { PrimaryButton } from '~/components/Button'
-import { H5, P } from '~/components/Typography'
+import { H5, P, A } from '~/components/Typography'
 import { InputGrid, Container, Form, Textarea, Input, Success, Error } from './style'
 
 interface Props {
@@ -9,7 +9,11 @@ interface Props {
 };
 
 export default function Feedback({ post }: Props) {
-  const [message, setMessage] = React.useState('')
+  const [data, setData] = React.useState({
+    message: "",
+    email: "",
+    _optin: false
+  })
 
   const [serverState, setServerState] = React.useState({
     submitting: false,
@@ -18,7 +22,12 @@ export default function Feedback({ post }: Props) {
   });
 
   function onChange(e) {
-    setMessage(e.target.value)
+    setData({
+      ...data, 
+      [e.target.name]: e.target.type == "checkbox" 
+        ? e.target.checked 
+        : e.target.value
+      })
   }
 
   function handleSubmit(e) {
@@ -39,7 +48,7 @@ export default function Feedback({ post }: Props) {
       if (response.ok) {
         setServerState({ submitting: false, submitted: true, error: false });
         form.reset();
-        setMessage("");
+        setData({...data, message: ''})
       } else {
         response.json().then(data => {
           setServerState({
@@ -64,12 +73,19 @@ export default function Feedback({ post }: Props) {
 
       <Form onSubmit={handleSubmit}>
         <input type="hidden" value={`New comment on ${post.title}`} id={post.title} name="_subject" readOnly/>
-        <Textarea onChange={onChange} value={message} id="message" name="message" placeholder="What should I know?"></Textarea>
+        <Textarea onChange={onChange} value={data.message} id="message" name="message" placeholder="What should I know?"></Textarea>
         <InputGrid>
-          <Input id="email" name="email" placeholder="(Optional) Email" />
-          <Input id="twitter" name="twitter" placeholder="(Optional) Twitter handle" />
+          <Input onChange={onChange} id="email" name="email" value={data.email} placeholder={`Email ${!data._optin ? '(Optional)' : '(Required)'}`} />
+          <Input id="twitter" name="twitter" placeholder="Twitter handle (Optional)" />
         </InputGrid>
-        <PrimaryButton disabled={serverState.submitting || !message} type="submit">Send</PrimaryButton>
+        <label>
+          <input id="optin" type="checkbox" name="_optin" onChange={onChange} checked={data._optin} style={{
+            WebkitAppearance: "checkbox", MozAppearance: "checkbox", marginRight: "0.5rem"
+          }} /> 
+          <strong> Follow Along </strong> 
+          If you want to know about new posts, check here to subscribe. Alternatively, you can <A href="https://overthought.ghost.io/rss/" target="_blank" rel="noopener noreferrer">subscribe with RSS</A>.
+        </label>
+        <PrimaryButton disabled={serverState.submitting || !data.message || (data._optin && !data.email)} type="submit">Send</PrimaryButton>
         {serverState.submitted &&
           (serverState.error ? (
             <Error>{serverState.error}</Error>
